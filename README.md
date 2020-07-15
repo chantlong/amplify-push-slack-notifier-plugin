@@ -2,6 +2,12 @@
 
 An amplify plugin that notifies your Slack Channel whenever `amplify push` is triggered from your CLI locally.
 
+## Installation
+
+```
+npm i -g amplify-push-slack-notifier-plugin
+```
+
 ## Prerequisite
 
 Install Amplify CLI globally if you have not already.
@@ -20,14 +26,15 @@ AMPLIFY_SLACK_WEBHOOK_URL
 
 Create a [Slack App](https://api.slack.com/apps) to get the Webhook URL used in `AMPLIFY_SLACK_WEBHOOK_URL`.
 
-## Installation
-
-```
-npm i -g amplify-push-slack-notifier-plugin
-```
-
 From the root of your amplify project run
 
 ```
 amplify plugin add amplify-push-slack-notifier-plugin
 ```
+
+Now whenever `amplify push` is done, it will send a message to your specified Slack Channel in the form of the following:
+
+```
+<AWS USERNAME> pushed to amplify env: <AMPLIFY ENV>
+```
+
