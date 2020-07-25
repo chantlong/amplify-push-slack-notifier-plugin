@@ -24,7 +24,7 @@ AWS_SECRET_KEY
 AMPLIFY_SLACK_WEBHOOK_URL
 ```
 
-Create a [Slack App](https://api.slack.com/apps) to get the Webhook URL used in `AMPLIFY_SLACK_WEBHOOK_URL`.
+Create a [Slack App](https://api.slack.com/apps) and add an Incoming Webhook, then copy the Webhook URL to be used in `AMPLIFY_SLACK_WEBHOOK_URL`.
 
 From the root of your amplify project run
 
@@ -32,9 +32,22 @@ From the root of your amplify project run
 amplify plugin add amplify-push-slack-notifier-plugin
 ```
 
-Now whenever `amplify push` is done, it will send a message to your specified Slack Channel in the form of the following:
+Now whenever `amplify push` is performed from the Amplify CLI, it will send a message to your specified Slack Channel in the following format.
+
+1. `<AWS USERNAME> pushed to amplify env: <AMPLIFY ENV>`
+2. Changes that have been made.
+
+![Slack Push Notification](assets/slack-push.png)
+
+## Updating the Plugin
 
 ```
-<AWS USERNAME> pushed to amplify env: <AMPLIFY ENV>
+npm i -g amplify-push-slack-notifier-plugin@latest
+
 ```
 
+From the root of your amplify project run
+
+```
+amplify plugin add amplify-push-slack-notifier-plugin
+```
