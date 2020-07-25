@@ -2,5 +2,5 @@
   "name": "amplify-push-slack-notifier-plugin",
   "type": "util",
   "commands": ["version", "help"],
-  "eventHandlers": ["PostPush"]
+  "eventHandlers": ["PrePush", "PostPush"]
 }

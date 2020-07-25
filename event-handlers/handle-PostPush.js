@@ -1,31 +1,56 @@
 const AWS = require('aws-sdk')
-const exec = require('child_process').exec
+const axios = require('axios')
+const util = require('util')
+const path = require('path')
+const asyncFSReadFile = util.promisify(require('fs').readFile)
 
 async function run(context, args) {
   try {
+    const statusPath = path.join(__dirname, '..', 'log', 'status.json')
+    const resourceStatus = await asyncFSReadFile(statusPath, 'utf-8')
+    let parsedResourceStatus
+    if (resourceStatus) {
+      parsedResourceStatus = JSON.parse(resourceStatus)
+    }
+    if (!parsedResourceStatus || parsedResourceStatus.length === 0) {
+      return
+    }
     const STS = new AWS.STS({
       accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET_KEY,
+      secretAccessKey: process.env.AWS_SECRET_KEY
     })
     const callerIdentity = await STS.getCallerIdentity().promise()
     const callerIdentityArray = callerIdentity.Arn.split('/')
     const username = callerIdentityArray[callerIdentityArray.length - 1]
     const amplifyEnv = context.exeInfo.localEnvInfo.envName
-
-    const command = `curl -X POST -H 'Content-type: application/json' --data '{"text":"${username} pushed to amplify env: *${amplifyEnv}*"}' ${process.env.AMPLIFY_SLACK_WEBHOOK_URL}`
-    exec(command, (err, stdout, stderr) => {
-      if (stdout === 'ok') {
-        return
-      }
-      if (stderr) {
-        context.print.error(`\nNotify Slack Error: ${stdout}`)
-      }
-    })
+    const slackPayload = {
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `${username} pushed to amplify env: *${amplifyEnv}*`
+          }
+        },
+        {
+          type: 'divider'
+        },
+        {
+          type: 'section',
+          fields: parsedResourceStatus
+        }
+      ]
+    }
+    await axios
+      .post(process.env.AMPLIFY_SLACK_WEBHOOK_URL, slackPayload)
+      .catch((err) => {
+        context.print.error(`\nNotify Slack Error: ${err.response.data}`)
+      })
   } catch (err) {
-    context.print.error(`\nNotify Slack Error: ${stdout}`)
+    context.print.error(`\nNotify Slack Error: ${err}`)
   }
 }
 
 module.exports = {
-  run,
+  run
 }
