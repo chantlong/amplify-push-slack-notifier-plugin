@@ -1,6 +1,6 @@
 {
   "name": "amplify-push-slack-notifier-plugin",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "An amplify plugin that notifies your Slack Channel whenever amplify push is triggered from your CLI locally.",
   "main": "index.js",
   "author": "Alex Wong",
@@ -13,7 +13,6 @@
     "notification"
   ],
   "dependencies": {
-    "aws-sdk": "^2.713.0",
-    "axios": "^0.19.2"
+    "aws-sdk": "^2.713.0"
   }
 }

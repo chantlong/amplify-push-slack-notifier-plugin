@@ -39,4 +39,15 @@ Now whenever `amplify push` is performed from the Amplify CLI, it will send a me
 
 ![Slack Push Notification](assets/slack-push.png)
 
+## Updating the Plugin
 
+```
+npm i -g amplify-push-slack-notifier-plugin@latest
+
+```
+
+From the root of your amplify project run
+
+```
+amplify plugin add amplify-push-slack-notifier-plugin
+```

@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk')
-const axios = require('axios')
 const util = require('util')
 const path = require('path')
+const exec = util.promisify(require('child_process').exec)
 const asyncFSReadFile = util.promisify(require('fs').readFile)
 
 async function run(context, args) {
@@ -41,11 +41,13 @@ async function run(context, args) {
         }
       ]
     }
-    await axios
-      .post(process.env.AMPLIFY_SLACK_WEBHOOK_URL, slackPayload)
-      .catch((err) => {
-        context.print.error(`\nNotify Slack Error: ${err.response.data}`)
-      })
+    const command = `curl -X POST -H 'Content-type: application/json' --data '${JSON.stringify(
+      slackPayload
+    )}' ${process.env.AMPLIFY_SLACK_WEBHOOK_URL}`
+    const { stderr } = await exec(command)
+    if (stderr) {
+      return context.print.error(`\nNotify Slack Error: ${stdout}`)
+    }
   } catch (err) {
     context.print.error(`\nNotify Slack Error: ${err}`)
   }
