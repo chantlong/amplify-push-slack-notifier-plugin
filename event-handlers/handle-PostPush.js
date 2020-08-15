@@ -1,13 +1,13 @@
-const AWS = require('aws-sdk')
-const util = require('util')
-const path = require('path')
-const exec = util.promisify(require('child_process').exec)
-const asyncFSReadFile = util.promisify(require('fs').readFile)
+const AWS = require("aws-sdk")
+const util = require("util")
+const path = require("path")
+const exec = util.promisify(require("child_process").exec)
+const asyncFSReadFile = util.promisify(require("fs").readFile)
 
 async function run(context, args) {
   try {
-    const statusPath = path.join(__dirname, '..', 'log', 'status.json')
-    const resourceStatus = await asyncFSReadFile(statusPath, 'utf-8')
+    const statusPath = path.join(__dirname, "..", "log", "status.json")
+    const resourceStatus = await asyncFSReadFile(statusPath, "utf-8")
     let parsedResourceStatus
     if (resourceStatus) {
       parsedResourceStatus = JSON.parse(resourceStatus)
@@ -17,34 +17,37 @@ async function run(context, args) {
     }
     const STS = new AWS.STS({
       accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET_KEY
+      secretAccessKey: process.env.AWS_SECRET_KEY,
     })
     const callerIdentity = await STS.getCallerIdentity().promise()
-    const callerIdentityArray = callerIdentity.Arn.split('/')
+    const callerIdentityArray = callerIdentity.Arn.split("/")
     const username = callerIdentityArray[callerIdentityArray.length - 1]
     const amplifyEnv = context.exeInfo.localEnvInfo.envName
     const slackPayload = {
       blocks: [
         {
-          type: 'section',
+          type: "section",
           text: {
-            type: 'mrkdwn',
-            text: `${username} pushed to amplify env: *${amplifyEnv}*`
-          }
+            type: "mrkdwn",
+            text: `${username} pushed to amplify env: *${amplifyEnv}*`,
+          },
         },
         {
-          type: 'divider'
+          type: "divider",
         },
         {
-          type: 'section',
-          fields: parsedResourceStatus
-        }
-      ]
+          type: "section",
+          fields: parsedResourceStatus,
+        },
+      ],
     }
     const command = `curl -X POST -H 'Content-type: application/json' --data '${JSON.stringify(
       slackPayload
     )}' ${process.env.AMPLIFY_SLACK_WEBHOOK_URL}`
-    const { stderr } = await exec(command)
+    const { stdout, stderr } = await exec(command)
+    if (stdout !== "ok") {
+      return context.print.error(`\nNotify Slack Error: ${stdout}`)
+    }
     if (stderr) {
       return context.print.error(`\nNotify Slack Error: ${stdout}`)
     }
@@ -54,5 +57,5 @@ async function run(context, args) {
 }
 
 module.exports = {
-  run
+  run,
 }
