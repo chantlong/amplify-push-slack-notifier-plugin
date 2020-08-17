@@ -45,7 +45,7 @@ async function run(context, args) {
       slackPayload
     )}' ${process.env.AMPLIFY_SLACK_WEBHOOK_URL}`
     const { stdout, stderr } = await exec(command)
-    if (stdout !== "ok") {
+    if (stdout && stdout !== "ok") {
       return context.print.error(`\nNotify Slack Error: ${stdout}`)
     }
     if (stderr) {
